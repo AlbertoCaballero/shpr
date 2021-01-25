@@ -11,8 +11,7 @@ import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import AddShopingCartIcon from "@material-ui/icons/AddShoppingCart";
 
-import { CartItem } from "../App";
-import { SpaceBar } from "@material-ui/icons";
+import { CartItemType } from "../App";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,8 +46,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type ItemProps = {
-  item: CartItem;
-  handleAddToCart: (clickedItem: CartItem) => void;
+  item: CartItemType;
+  handleAddToCart: (clickedItem: CartItemType) => void;
 };
 
 const Item: React.FC<ItemProps> = ({ item, handleAddToCart }) => {

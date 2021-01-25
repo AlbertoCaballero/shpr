@@ -9,8 +9,10 @@ import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 
 import AddShopingCartIcon from "@material-ui/icons/AddShoppingCart";
 import Item from "./Item/Item";
+import Cart from "./Cart/Cart";
 import IconButton from "@material-ui/core/IconButton";
 import { Toolbar, Typography } from "@material-ui/core";
+import { ShoppingCart } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -23,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export type CartItem = {
+export type CartItemType = {
   id: number;
   category: string;
   description: string;
@@ -33,26 +35,48 @@ export type CartItem = {
   amount: number;
 };
 
-const getProducts = async (): Promise<CartItem[]> =>
+const getProducts = async (): Promise<CartItemType[]> =>
   await (await fetch("http://fakestoreapi.com/products")).json();
 
 const App = () => {
   const [cartIsOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([] as CartItem[]);
+  const [cartItems, setCartItems] = useState([] as CartItemType[]);
   const classes = useStyles();
 
-  const { data, isLoading, error } = useQuery<CartItem[]>(
+  const { data, isLoading, error } = useQuery<CartItemType[]>(
     "products",
     getProducts
   );
   console.log(data);
 
-  const getTotalItems = (items: CartItem[]) =>
-    items.reduce((acc: number, items) => acc + items.amount, 0);
+  const getTotalItems = (items: CartItemType[]) =>
+    items.reduce((acc: number, item) => acc + item.amount, 0);
 
-  const handleAddToCart = (clickedItem: CartItem) => null;
+  const handleAddToCart = (clickedItem: CartItemType) => {
+    setCartItems((prev) => {
+      const isItemInCart = prev.find((item) => item.id === clickedItem.id);
+      if (isItemInCart) {
+        return prev.map((item) =>
+          item.id === clickedItem.id
+            ? { ...item, amount: item.amount + 1 }
+            : item
+        );
+      }
+      return [...prev, { ...clickedItem, amount: 1 }];
+    });
+  };
 
-  const handleRemoveFromCart = () => null;
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems((prev) =>
+      prev.reduce((acc, item) => {
+        if (item.id === id) {
+          if (item.amount === 1) return acc;
+          return [...acc, { ...item, amount: item.amount - 1 }];
+        }
+        return [...acc, item];
+      }, [] as CartItemType[])
+    );
+  };
 
   if (isLoading) return <CircularProgress />;
   if (error) return <div>Somethin failed!</div>;
@@ -64,7 +88,11 @@ const App = () => {
         open={cartIsOpen}
         onClose={() => setCartOpen(false)}
       >
-        Lets put our cart here!!!!
+        <Cart
+          cartItems={cartItems}
+          addToCart={handleAddToCart}
+          removeFromCart={handleRemoveFromCart}
+        />
       </Drawer>
       <Toolbar>
         <Typography variant="h2" component="h1">
@@ -73,7 +101,7 @@ const App = () => {
       </Toolbar>
       <IconButton className={classes.cart} onClick={() => setCartOpen(true)}>
         <Badge badgeContent={getTotalItems(cartItems)} color="error">
-          <AddShopingCartIcon />
+          <ShoppingCart />
         </Badge>
       </IconButton>
       <Grid container spacing={2}>
