@@ -7,7 +7,6 @@ import Grid from "@material-ui/core/Grid";
 import Badge from "@material-ui/core/Badge";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 
-import AddShopingCartIcon from "@material-ui/icons/AddShoppingCart";
 import Item from "./Item/Item";
 import Cart from "./Cart/Cart";
 import IconButton from "@material-ui/core/IconButton";
